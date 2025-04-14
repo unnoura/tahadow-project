@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conflicts Setup - Secret Santa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      direction: ltr;
+    }
+    .conflict-item {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    .btn-back {
+      background-color: white;
+      color: #2196F3;
+      border: 1px solid #2196F3;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .btn-back:hover {
+      background-color: #e6f0fb;
+    }
+    .delete-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: darkred;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Setup Conflicts</h1>
+
+  <div>
+    <label for="personA">Person A:</label>
+    <select id="personA"></select>
+
+    <label for="personB">Person B:</label>
+    <select id="personB"></select>
+
+    <br><br>
+
+    <label>One Way</label>
+    <label class="toggle-switch">
+      <input type="checkbox" id="conflictType">
+      <span class="slider"></span>
+    </label>
+    <label>Two Way</label>
+
+    <br><br>
+    <button onclick="addConflict()">Add Conflict</button>
+  </div>
+
+  <h2>Conflicts List:</h2>
+  <ul id="conflictsList"></ul>
+
+  <button onclick="goBack()" class="btn-back">رجوع</button>
+
+  <script>
+    const names = JSON.parse(localStorage.getItem('names')) || [];
+
+    const personASelect = document.getElementById('personA');
+    const personBSelect = document.getElementById('personB');
+    const conflictsList = document.getElementById('conflictsList');
+
+    const conflicts = JSON.parse(localStorage.getItem('conflicts')) || [];
+
+    function populateNames() {
+      names.forEach(name => {
+        const optionA = document.createElement('option');
+        optionA.value = name;
+        optionA.textContent = name;
+        personASelect.appendChild(optionA);
+
+        const optionB = document.createElement('option');
+        optionB.value = name;
+        optionB.textContent = name;
+        personBSelect.appendChild(optionB);
+      });
+    }
+
+    function addConflict() {
+      const personA = personASelect.value;
+      const personB = personBSelect.value;
+      const isTwoWay = document.getElementById('conflictType').checked;
+
+      if (personA === personB) {
+        alert("You cannot set a conflict with the same person.");
+        return;
+      }
+
+      conflicts.push({ personA, personB, type: isTwoWay ? 'twoWay' : 'oneWay' });
+      localStorage.setItem('conflicts', JSON.stringify(conflicts));
+      renderConflicts();
+    }
+
+    function renderConflicts() {
+      conflictsList.innerHTML = '';
+      conflicts.forEach((c, index) => {
+        const li = document.createElement('li');
+        li.className = 'conflict-item';
+        li.innerHTML = `
+          <span>${c.personA} ${c.type === 'twoWay' ? '<=>' : '->'} ${c.personB}</span>
+          <button class="delete-btn" onclick="deleteConflict(${index})">🗑️</button>
+        `;
+        conflictsList.appendChild(li);
+      });
+    }
+
+    function deleteConflict(index) {
+      conflicts.splice(index, 1);
+      localStorage.setItem('conflicts', JSON.stringify(conflicts));
+      renderConflicts();
+    }
+
+    function goBack() {
+      window.location.href = 'تهادوا.html'; // غيريه لو اسم الصفحة الأولى غير
+    }
+
+    populateNames();
+    renderConflicts();
+  </script>
+
+</body>
+</html>

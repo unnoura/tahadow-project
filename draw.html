@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سحب Secret Santa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    .draw-section {
+      margin-top: 50px;
+    }
+    .result {
+      margin-top: 30px;
+      font-size: 22px;
+      color: green;
+    }
+    .btn-draw {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-draw:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎁 اسحب هديتك السرية 🎁</h1>
+
+  <div class="draw-section">
+    <label for="participantSelect">اختر اسمك:</label><br><br>
+    <select id="participantSelect"></select><br><br>
+
+    <button class="btn-draw" onclick="performDraw()">اسحب</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const eventData = JSON.parse(localStorage.getItem('eventData'));
+    const participantSelect = document.getElementById('participantSelect');
+    const resultDiv = document.getElementById('result');
+
+    if (!eventData || !eventData.assignments) {
+      alert("لا توجد بيانات للسحب! تأكد أنك ضغطت ابدأ السحب من صفحة الاستعداد.");
+      window.location.href = 'ready.html';
+    }
+
+    function populateParticipants() {
+      participantSelect.innerHTML = ''; // إفراغ القائمة
+      eventData.names.forEach(name => {
+        if (!eventData.drawStatus[name]) { // التأكد من أن الشخص لم يسحب
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          participantSelect.appendChild(option);
+        }
+      });
+    }
+
+    function performDraw() {
+      const selectedName = participantSelect.value;
+
+      if (!selectedName) {
+        alert("اختر اسمك أولاً!");
+        return;
+      }
+
+      const assignedPerson = eventData.assignments[selectedName];
+      if (!assignedPerson) {
+        alert("لا يوجد تعيين لهذا الاسم.");
+        return;
+      }
+
+      // عرض النتيجة
+      resultDiv.innerHTML = `
+        <p>🎉 تهانينا ${selectedName}!</p>
+        <p>أنت ستُهدي: <strong>${assignedPerson}</strong> 🎁</p>
+        <p>حد الهدية: <strong>${eventData.budget}</strong></p>
+      `;
+
+      // تحديث حالة السحب
+      eventData.drawStatus[selectedName] = true;
+      localStorage.setItem('eventData', JSON.stringify(eventData));
+      
+      // تعطيل الاختيارات
+      participantSelect.disabled = true;
+      document.querySelector('.btn-draw').disabled = true;
+    }
+
+    populateParticipants();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تهادوا - Secret Santa Private</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            direction: ltr;
+        }
+        #nameInputSection {
+            margin-top: 20px;
+        }
+        .name-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .remove-btn {
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .manager {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Secret Santa Event Creator</h1>
+    <label for="languageSelect">Language:</label>
+    <select id="languageSelect" onchange="changeLanguage()">
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+    </select><br><br>
+
+    <input type="text" id="eventName" placeholder="Enter Event Name"><br><br>
+    <input type="text" id="budgetInput" placeholder="Enter Gift Budget"><br><br>
+
+    <div id="nameInputSection">
+        <input type="text" id="singleName" placeholder="Enter a name">
+        <button onclick="addName()" id="addNameBtn">Add Name</button>
+        <ul id="namesList"></ul>
+        <button onclick="saveAndGoToConflicts()" style="margin-top:20px;" id="nextBtn">Next</button>
+    </div>
+
+    <script>
+        let currentNames = [];
+        let currentLanguage = 'en';
+
+        const texts = {
+            en: {
+                title: "Secret Santa Event Creator",
+                eventNamePlaceholder: "Enter Event Name",
+                budgetPlaceholder: "Enter Gift Budget",
+                singleNamePlaceholder: "Enter a name",
+                addName: "Add Name",
+                next: "Next"
+            },
+            ar: {
+                title: "منظم فعالية تهادوا",
+                eventNamePlaceholder: "ادخل اسم الفعالية",
+                budgetPlaceholder: "ادخل حد الهدية",
+                singleNamePlaceholder: "ادخل اسماً",
+                addName: "أضف اسم",
+                next: "التالي"
+            }
+        };
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('languageSelect').value;
+            document.getElementById('title').textContent = texts[currentLanguage].title;
+            document.getElementById('eventName').placeholder = texts[currentLanguage].eventNamePlaceholder;
+            document.getElementById('budgetInput').placeholder = texts[currentLanguage].budgetPlaceholder;
+            document.getElementById('singleName').placeholder = texts[currentLanguage].singleNamePlaceholder;
+            document.getElementById('addNameBtn').textContent = texts[currentLanguage].addName;
+            document.getElementById('nextBtn').textContent = texts[currentLanguage].next;
+            document.body.style.direction = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+        }
+
+        function addName() {
+            const nameInput = document.getElementById('singleName');
+            const name = nameInput.value.trim();
+            if (name) {
+                currentNames.push(name);
+                renderNames();
+                nameInput.value = '';
+            } else {
+                alert(currentLanguage === 'ar' ? 'رجاءً أدخل اسم.' : 'Please enter a name.');
+            }
+        }
+
+        function removeName(name) {
+            currentNames = currentNames.filter(n => n !== name);
+            renderNames();
+        }
+
+        function renderNames() {
+            const list = document.getElementById('namesList');
+            list.innerHTML = '';
+            currentNames.forEach((name, index) => {
+                const li = document.createElement('li');
+                li.className = 'name-item';
+                li.innerHTML = `<span class="${index === 0 ? 'manager' : ''}">${name}</span> <span class="remove-btn" onclick="removeName('${name}')">&times;</span>`;
+                list.appendChild(li);
+            });
+        }
+
+        function saveAndGoToConflicts() {
+            const eventName = document.getElementById('eventName').value.trim();
+            const budgetInput = document.getElementById('budgetInput').value.trim();
+
+            if (!eventName || currentNames.length < 2 || !budgetInput) {
+                alert(currentLanguage === 'ar' ? 'أدخل اسم الفعالية وحد الهدية واسمين على الأقل.' : 'Please enter event name, gift budget, and at least two names.');
+                return;
+            }
+
+            const eventData = {
+                names: currentNames,
+                budget: budgetInput
+            };
+
+            localStorage.setItem('eventData', JSON.stringify(eventData));
+            window.location.href = 'conflicts.html';
+        }
+
+        document.getElementById('singleName').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addName();
+            }
+        });
+    </script>
+</body>
+</html>

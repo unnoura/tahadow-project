@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الاستعداد للسحب - تهادوا</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      font-size: 18px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>المجموعة جاهزة! 💖</h1>
+  <h3>قائمة المشاركين:</h3>
+
+  <ul id="participantsList"></ul>
+
+  <button onclick="startDraw()">ابدأ السحب</button>
+
+  <script>
+    const eventData = JSON.parse(localStorage.getItem('eventData'));
+
+    if (!eventData) {
+      alert("لا توجد بيانات للمجموعة. يجب إضافة الأسماء أولاً.");
+      window.location.href = 'tahadow.html';
+    }
+
+    function renderList() {
+      const participantsList = document.getElementById('participantsList');
+      participantsList.innerHTML = '';
+      eventData.names.forEach(name => {
+        const li = document.createElement('li');
+        li.textContent = name;
+        participantsList.appendChild(li);
+      });
+    }
+
+    function startDraw() {
+      window.location.href = 'draw.html';  // الانتقال إلى صفحة السحب
+    }
+
+    renderList();
+  </script>
+
+</body>
+</html>

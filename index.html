@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مرحبا بكم في تهادوا 🎁</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffe6f0, #e6f7ff, #f9f0ff);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    h1 {
+      font-size: 40px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .start-btn {
+      background-color: #ffcce0;
+      border: none;
+      padding: 15px 30px;
+      font-size: 20px;
+      color: #333;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .start-btn:hover {
+      background-color: #ffb3d9;
+    }
+
+    /* Fireworks Simulation */
+    .firework {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: transparent;
+      border-radius: 50%;
+      box-shadow:
+        0 0 10px #ff80ab,
+        0 0 20px #80d8ff,
+        0 0 30px #b388ff,
+        0 0 40px #ff8a80;
+      animation: explode 2s infinite ease-in-out;
+    }
+
+    @keyframes explode {
+      0% {
+        transform: scale(0) translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.5) translateY(-100px);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(0) translateY(0);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎉 أهلاً بكم في عالم تهادوا 🎉</h1>
+  <button class="start-btn" onclick="start()">ابدأ رحلتنا 🎁</button>
+
+  <!-- Fake Fireworks -->
+  <div class="firework" style="top:20%; left:15%; animation-delay:0s;"></div>
+  <div class="firework" style="top:30%; left:70%; animation-delay:1s;"></div>
+  <div class="firework" style="top:50%; left:40%; animation-delay:0.5s;"></div>
+  <div class="firework" style="top:70%; left:60%; animation-delay:1.5s;"></div>
+  <div class="firework" style="top:85%; left:20%; animation-delay:2s;"></div>
+
+  <script>
+    function start() {
+      window.location.href = 'tahadow.html'; // غيريها حسب اسم صفحتك الأولى
+    }
+  </script>
+
+</body>
+</html>
