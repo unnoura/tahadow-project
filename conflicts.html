@@ -106,6 +106,8 @@
 
 
   <script>
+ // استرجاع القيود من localStorage
+    const conflicts = JSON.parse(localStorage.getItem('conflicts')) || [];
     let participants = JSON.parse(localStorage.getItem('names')) || [];
     let conflicts = [];
 
