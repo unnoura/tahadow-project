@@ -1,28 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conflicts Setup - Secret Santa</title>
+  <title>صفحة القيود</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      text-align: center;
       margin: 20px;
-      direction: ltr;
+    }
+    button {
+      padding: 10px;
+      margin-top: 20px;
+      font-size: 18px;
     }
     .conflict-item {
-      margin-bottom: 10px;
+      margin: 10px;
+    }
+    select, label, .toggle-container {
+      font-size: 18px;
+      margin: 10px;
+    }
+    .toggle-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
     }
-    .toggle-switch {
+    .switch {
       position: relative;
       display: inline-block;
-      width: 50px;
-      height: 24px;
+      width: 60px;
+      height: 34px;
     }
-    .toggle-switch input {
+    .switch input {
       opacity: 0;
       width: 0;
       height: 0;
@@ -36,18 +47,18 @@
       bottom: 0;
       background-color: #ccc;
       transition: .4s;
-      border-radius: 24px;
+      border-radius: 34px;
     }
     .slider:before {
       position: absolute;
       content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
+      height: 26px;
+      width: 26px;
+      border-radius: 50%;
+      left: 4px;
+      bottom: 4px;
       background-color: white;
       transition: .4s;
-      border-radius: 50%;
     }
     input:checked + .slider {
       background-color: #2196F3;
@@ -55,124 +66,141 @@
     input:checked + .slider:before {
       transform: translateX(26px);
     }
-    .btn-back {
-      background-color: white;
-      color: #2196F3;
-      border: 1px solid #2196F3;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    .btn-back:hover {
-      background-color: #e6f0fb;
-    }
-    .delete-btn {
-      background-color: red;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .delete-btn:hover {
-      background-color: darkred;
-    }
   </style>
 </head>
 <body>
+  <h1>حدد القيود بين المشاركين</h1>
 
-  <h1>Setup Conflicts</h1>
+  <!-- إدخال المشاركين -->
+  <div id="participantsDiv">
+    <label for="participant1">المشارك الأول:</label>
+    <select id="participant1">
+      <!-- سيتم ملؤها تلقائيًا بالمشاركين الذين أضفتهم في صفحة tahadow.html -->
+    </select>
 
-  <div>
-    <label for="personA">Person A:</label>
-    <select id="personA"></select>
-
-    <label for="personB">Person B:</label>
-    <select id="personB"></select>
-
-    <br><br>
-
-    <label>One Way</label>
-    <label class="toggle-switch">
-      <input type="checkbox" id="conflictType">
-      <span class="slider"></span>
-    </label>
-    <label>Two Way</label>
-
-    <br><br>
-    <button onclick="addConflict()">Add Conflict</button>
+    <label for="participant2">المشارك الثاني:</label>
+    <select id="participant2">
+      <!-- سيتم ملؤها تلقائيًا بالمشاركين الذين أضفتهم في صفحة tahadow.html -->
+    </select>
   </div>
 
-  <h2>Conflicts List:</h2>
-  <ul id="conflictsList"></ul>
+  <!-- إضافة خيار القيود One-way أو Two-way كـ Toggle -->
+  <div class="toggle-container">
+    <label for="conflictType">نوع القيد: </label>
+    <label class="switch">
+      <input type="checkbox" id="conflictTypeToggle">
+      <span class="slider"></span>
+    </label>
+    <span id="conflictTypeLabel">One-way</span> <!-- النص المميز -->
+  </div>
 
-  <button onclick="goBack()" class="btn-back">رجوع</button>
+  <!-- عرض القيود -->
+  <h3>القيود المضافة:</h3>
+  <div id="conflictList"></div>
+
+  <!-- زر الحفظ -->
+  <button onclick="saveConflicts()">حفظ القيود</button>
+
+    <!-- زر استمرار بدون قيود -->
+    <button onclick="continueWithoutConflicts()">استمرار بدون قيود</button>
+
 
   <script>
-    const names = JSON.parse(localStorage.getItem('names')) || [];
+    let participants = JSON.parse(localStorage.getItem('names')) || [];
+    let conflicts = [];
 
-    const personASelect = document.getElementById('personA');
-    const personBSelect = document.getElementById('personB');
-    const conflictsList = document.getElementById('conflictsList');
+    // وظيفة لعرض المشاركين في القوائم المنسدلة
+    function renderParticipants() {
+      const participant1Select = document.getElementById("participant1");
+      const participant2Select = document.getElementById("participant2");
 
-    const conflicts = JSON.parse(localStorage.getItem('conflicts')) || [];
+      participants.forEach(name => {
+        const option1 = document.createElement("option");
+        option1.value = name;
+        option1.textContent = name;
+        participant1Select.appendChild(option1);
 
-    function populateNames() {
-      names.forEach(name => {
-        const optionA = document.createElement('option');
-        optionA.value = name;
-        optionA.textContent = name;
-        personASelect.appendChild(optionA);
-
-        const optionB = document.createElement('option');
-        optionB.value = name;
-        optionB.textContent = name;
-        personBSelect.appendChild(optionB);
+        const option2 = document.createElement("option");
+        option2.value = name;
+        option2.textContent = name;
+        participant2Select.appendChild(option2);
       });
     }
 
-    function addConflict() {
-      const personA = personASelect.value;
-      const personB = personBSelect.value;
-      const isTwoWay = document.getElementById('conflictType').checked;
+    // تغيير النص عند التبديل بين One-way و Two-way
+    document.getElementById("conflictTypeToggle").addEventListener("change", function() {
+      const conflictTypeLabel = document.getElementById("conflictTypeLabel");
+      if (this.checked) {
+        conflictTypeLabel.textContent = "Two-way";
+      } else {
+        conflictTypeLabel.textContent = "One-way";
+      }
+    });
 
-      if (personA === personB) {
-        alert("You cannot set a conflict with the same person.");
+    // إضافة قيد بين المشاركين
+    function addConflict() {
+      const participant1 = document.getElementById("participant1").value;
+      const participant2 = document.getElementById("participant2").value;
+      const conflictType = document.getElementById("conflictTypeToggle").checked ? "Two-way" : "One-way";
+
+      if (participant1 !== participant2) {
+        conflicts.push({ participant1, participant2, conflictType });
+        renderConflicts();
+      } else {
+        alert("يجب أن يكون المشاركان مختلفين.");
+      }
+    }
+
+    // عرض القيود المضافة
+    function renderConflicts() {
+      const conflictList = document.getElementById("conflictList");
+      conflictList.innerHTML = ''; // إفراغ القائمة
+
+      conflicts.forEach(conflict => {
+        const conflictDiv = document.createElement("div");
+        conflictDiv.className = "conflict-item";
+        
+        // إذا كان القيد Two-way، نعرض الأسماء في سطرين منفصلين
+        if (conflict.conflictType === "Two-way") {
+          conflictDiv.innerHTML = `${conflict.participant1} لا يهدي ${conflict.participant2}`;
+          conflictList.appendChild(conflictDiv);
+          
+          // إضافة السطر المعاكس "لا يهدي"
+          const reverseConflictDiv = document.createElement("div");
+          reverseConflictDiv.className = "conflict-item";
+          reverseConflictDiv.innerHTML = `${conflict.participant2} لا يهدي ${conflict.participant1}`;
+          conflictList.appendChild(reverseConflictDiv);
+        } else {
+          conflictDiv.innerHTML = `${conflict.participant1} لا يهدي ${conflict.participant2}`;
+          conflictList.appendChild(conflictDiv);
+        }
+      });
+    }
+
+    // حفظ القيود للانتقال إلى الخطوة التالية
+    function saveConflicts() {
+      if (conflicts.length === 0) {
+        alert("يرجى إضافة قيود قبل الحفظ.");
         return;
       }
 
-      conflicts.push({ personA, personB, type: isTwoWay ? 'twoWay' : 'oneWay' });
-      localStorage.setItem('conflicts', JSON.stringify(conflicts));
-      renderConflicts();
-    }
+      // تخزين القيود في localStorage
+      localStorage.setItem("conflicts", JSON.stringify(conflicts));
 
-    function renderConflicts() {
-      conflictsList.innerHTML = '';
-      conflicts.forEach((c, index) => {
-        const li = document.createElement('li');
-        li.className = 'conflict-item';
-        li.innerHTML = `
-          <span>${c.personA} ${c.type === 'twoWay' ? '<=>' : '->'} ${c.personB}</span>
-          <button class="delete-btn" onclick="deleteConflict(${index})">🗑️</button>
-        `;
-        conflictsList.appendChild(li);
-      });
+      // الانتقال إلى الخطوة التالية
+      window.location.href = "ready.html";  // يمكن أن يكون رابط الصفحة التالية
     }
+  ;
 
-    function deleteConflict(index) {
-      conflicts.splice(index, 1);
-      localStorage.setItem('conflicts', JSON.stringify(conflicts));
-      renderConflicts();
-    }
-
-    function goBack() {
-      window.location.href = 'تهادوا.html'; // غيريه لو اسم الصفحة الأولى غير
-    }
-
-    populateNames();
-    renderConflicts();
+// وظيفة التوجيه إلى صفحة "ready.html" بدون قيود
+function continueWithoutConflicts() {
+  window.location.href = "ready.html"; // رابط صفحة الاستعداد
+}
+    // عرض المشاركين عند تحميل الصفحة
+    renderParticipants();
   </script>
 
+  <!-- زر إضافة قيد -->
+  <button onclick="addConflict()">إضافة قيد</button>
 </body>
 </html>
