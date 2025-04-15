@@ -1,139 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تهادوا - Secret Santa Private</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            direction: ltr;
-        }
-        #nameInputSection {
-            margin-top: 20px;
-        }
-        .name-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .remove-btn {
-            margin-left: 10px;
-            color: red;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .manager {
-            color: green;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منظم فعالية تهادوا</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center; /* جعل النص في منتصف الصفحة */
+      margin: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 18px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      font-size: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    #eventName {
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .manager {
+      color: green;
+      font-weight: bold;
+    }
+    .remove-btn {
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <h1 id="title">Secret Santa Event Creator</h1>
-    <label for="languageSelect">Language:</label>
-    <select id="languageSelect" onchange="changeLanguage()">
-        <option value="en">English</option>
-        <option value="ar">العربية</option>
-    </select><br><br>
+  <h1 id="eventName">منظم فعالية تهادوا</h1>
+  
+  <!-- حقل إدخال اسم الفعالية -->
+  <input type="text" id="singleName" placeholder="أدخل اسماً" onkeypress="checkEnter(event)">
+  
+  <!-- زر إضافة الاسم -->
+  <button onclick="addName()">أضف اسم</button>
+  
+  <h2>الأسماء المضافة:</h2>
+  <ul id="namesList"></ul>
 
-    <input type="text" id="eventName" placeholder="Enter Event Name"><br><br>
-    <input type="text" id="budgetInput" placeholder="Enter Gift Budget"><br><br>
+  <!-- زر حفظ المجموعة -->
+  <button onclick="saveGroup()">احفظ المجموعة</button>
 
-    <div id="nameInputSection">
-        <input type="text" id="singleName" placeholder="Enter a name">
-        <button onclick="addName()" id="addNameBtn">Add Name</button>
-        <ul id="namesList"></ul>
-        <button onclick="saveAndGoToConflicts()" style="margin-top:20px;" id="nextBtn">Next</button>
-    </div>
+  <!-- زر إضافة قيود -->
+  <button onclick="goToConflictsPage()">إضافة قيود</button>
+  
+  <script>
+    let currentNames = [];
+    let isFirstName = true;  // للتحقق من أنه الاسم الأول ليكون المدير
 
-    <script>
-        let currentNames = [];
-        let currentLanguage = 'en';
+    // إضافة الاسم عند الضغط على الزر
+    function addName() {
+      const nameInput = document.getElementById('singleName');
+      const name = nameInput.value.trim();
 
-        const texts = {
-            en: {
-                title: "Secret Santa Event Creator",
-                eventNamePlaceholder: "Enter Event Name",
-                budgetPlaceholder: "Enter Gift Budget",
-                singleNamePlaceholder: "Enter a name",
-                addName: "Add Name",
-                next: "Next"
-            },
-            ar: {
-                title: "منظم فعالية تهادوا",
-                eventNamePlaceholder: "ادخل اسم الفعالية",
-                budgetPlaceholder: "ادخل حد الهدية",
-                singleNamePlaceholder: "ادخل اسماً",
-                addName: "أضف اسم",
-                next: "التالي"
-            }
-        };
+      if (name) {
+        if (isFirstName) {
+          currentNames.push({ name: name, isManager: true });  // جعل أول اسم هو المدير
+          isFirstName = false;
+        } else {
+          currentNames.push({ name: name, isManager: false });
+        }
+        renderNames();
+        nameInput.value = ''; // مسح المدخل بعد الإضافة
+      } else {
+        alert("من فضلك، أدخل اسمًا.");
+      }
+    }
 
-        function changeLanguage() {
-            currentLanguage = document.getElementById('languageSelect').value;
-            document.getElementById('title').textContent = texts[currentLanguage].title;
-            document.getElementById('eventName').placeholder = texts[currentLanguage].eventNamePlaceholder;
-            document.getElementById('budgetInput').placeholder = texts[currentLanguage].budgetPlaceholder;
-            document.getElementById('singleName').placeholder = texts[currentLanguage].singleNamePlaceholder;
-            document.getElementById('addNameBtn').textContent = texts[currentLanguage].addName;
-            document.getElementById('nextBtn').textContent = texts[currentLanguage].next;
-            document.body.style.direction = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+    // إضافة الاسم عند الضغط على Enter
+    function checkEnter(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();  // منع السلوك الافتراضي (إرسال النموذج)
+        addName();
+      }
+    }
+
+    // عرض الأسماء في القائمة
+    function renderNames() {
+      const list = document.getElementById('namesList');
+      list.innerHTML = ''; // إعادة تحميل القائمة لتحديث الأسماء
+
+      currentNames.forEach((nameObj, index) => {
+        const li = document.createElement('li');
+        li.textContent = nameObj.name;
+
+        // تمييز المدير باللون الأخضر
+        if (nameObj.isManager) {
+          li.classList.add('manager');
         }
 
-        function addName() {
-            const nameInput = document.getElementById('singleName');
-            const name = nameInput.value.trim();
-            if (name) {
-                currentNames.push(name);
-                renderNames();
-                nameInput.value = '';
-            } else {
-                alert(currentLanguage === 'ar' ? 'رجاءً أدخل اسم.' : 'Please enter a name.');
-            }
-        }
+        // إضافة زر "إكس" لحذف الاسم
+        const removeBtn = document.createElement('span');
+        removeBtn.textContent = ' ×';
+        removeBtn.classList.add('remove-btn');
+        removeBtn.onclick = () => removeName(index);
+        
+        li.appendChild(removeBtn);
+        list.appendChild(li);
+      });
+    }
 
-        function removeName(name) {
-            currentNames = currentNames.filter(n => n !== name);
-            renderNames();
-        }
+    // حذف اسم من القائمة
+    function removeName(index) {
+      currentNames.splice(index, 1); // حذف الاسم من المصفوفة
+      renderNames(); // إعادة تحميل القائمة بعد الحذف
+    }
 
-        function renderNames() {
-            const list = document.getElementById('namesList');
-            list.innerHTML = '';
-            currentNames.forEach((name, index) => {
-                const li = document.createElement('li');
-                li.className = 'name-item';
-                li.innerHTML = `<span class="${index === 0 ? 'manager' : ''}">${name}</span> <span class="remove-btn" onclick="removeName('${name}')">&times;</span>`;
-                list.appendChild(li);
-            });
-        }
+    // حفظ المجموعة (مثال على كيفية استخدام localStorage أو إرسال البيانات)
+    function saveGroup() {
+      if (currentNames.length < 2) {
+        alert("يجب إضافة اسمين على الأقل.");
+        return;
+      }
 
-        function saveAndGoToConflicts() {
-            const eventName = document.getElementById('eventName').value.trim();
-            const budgetInput = document.getElementById('budgetInput').value.trim();
+      alert("تم حفظ المجموعة بنجاح!");
+      // يمكنك تخزين المجموعة في localStorage أو إرسالها إلى خادم
+    }
 
-            if (!eventName || currentNames.length < 2 || !budgetInput) {
-                alert(currentLanguage === 'ar' ? 'أدخل اسم الفعالية وحد الهدية واسمين على الأقل.' : 'Please enter event name, gift budget, and at least two names.');
-                return;
-            }
+    // التوجيه إلى صفحة القيود (conflicts.html)
+    function goToConflictsPage() {
+      window.location.href = "conflicts.html"; // رابط صفحة القيود
+    }
 
-            const eventData = {
-                names: currentNames,
-                budget: budgetInput
-            };
-
-            localStorage.setItem('eventData', JSON.stringify(eventData));
-            window.location.href = 'conflicts.html';
-        }
-
-        document.getElementById('singleName').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                addName();
-            }
-        });
-    </script>
+  </script>
 </body>
 </html>
